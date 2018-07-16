@@ -20,6 +20,7 @@ def conv_input(import_data):
     headL = []
     clfs = False
     ioi = False
+    new  = False
     dictHead = {}
     outSet = Dataset()
     #Pull header mapping from database
