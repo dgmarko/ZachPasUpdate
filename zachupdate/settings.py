@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'cg#p$g+j9ex!#a3cup@r$8obt2_+&k
 DEBUG = bool( os.environ.get('DJANGO_DEBUG', True) )
 
 ALLOWED_HOSTS = [
-    'zachpeqdatabase.herokuapp.com',
+    'zacheqdb.herokuapp.com',
     '127.0.0.1',
 ]
 
