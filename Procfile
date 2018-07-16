@@ -1,1 +1,1 @@
-web: gunicorn zacheqsite.wsgi --log-file -
+web: gunicorn zachupdate.wsgi --log-file -
