@@ -1,0 +1,22 @@
+{% extends "base_generic.html" %}
+{% load render_table from django_tables2 %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% block content %}
+
+<h4>Summary</h4>
+
+<div>
+  <div class="col-lg-4">
+    <form method="get">
+      {% csrf_token %}
+      <table>
+        {{ Summary_Form.as_table }}
+      </table>
+      <button class="button" type="submit" value="{{b.id}}" name="pullData">Generate Report</button>
+    </form>
+  </div>
+</div>
+
+{% render_table SummaryTable %}
+
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends "base_generic.html" %}
+{% load render_table from django_tables2 %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% block content %}
+
+<style>
+.button {
+    font-size: 1em;
+    font-weight: 700;
+    color: white;
+    background-color: #79258e;
+    display: inline-block;
+    cursor: pointer; /* "hand" cursor */
+    outline: 1px dotted #000;
+    outline: -webkit-focus-ring-color auto 5px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20em;
+    text-align: center;
+}
+
+.left {
+
+  border:1px solid black;
+}
+
+div.pltable {
+    float: left;
+    width:250px;
+    margin: auto;
+    border: 3px solid black;
+}
+
+div.ipotable{
+  clear:both;
+  float: left;
+  width:1000px;
+  padding: 5px;
+  margin: auto;
+  border: 3px solid black;
+}
+
+div.sectable{
+  clear:both;
+  float: left;
+  width:1000px;
+  padding: 5px;
+  margin: auto;
+  border: 3px solid black;
+}
+
+div.tradetable{
+  clear:both;
+  float: left;
+  width:1000px;
+  padding: 5px;
+  margin: auto;
+  border: 3px solid black;
+}
+
+div.preferredtable{
+  clear:both;
+  float: left;
+  width:1000px;
+  padding: 5px;
+  margin: auto;
+  border: 3px solid black;
+}
+
+th, td {
+    padding: 5px;
+}
+</style>
+
+<h4>Reports</h4>
+
+<div>
+  <div class="row">
+    <div class="col-lg-4">
+      <form method="get">
+        {% csrf_token %}
+        <table>
+          {{ OutForm.as_table }}
+        </table>
+        <button class="button" type="submit" value="{{b.id}}" name="pullData">Generate Report</button>
+      </form>
+    </div>
+
+    <div class="col-lg-4">
+      {% render_table OpenPositionTable %}
+    </div>
+  </div>
+</div>
+
+<br>
+
+<div class="pltable">
+  <table>
+    <tr>
+      <th><h4> P&L </h4></th>
+      <th>  <th>
+    </tr>
+    <tr>
+      <td><h5> IPOS </h5></td>
+      <td><h5> {{ IPO_PL }} </h5></td>
+    </tr>
+    <tr>
+      <td><h5> 2nds/ON </h5></td>
+      <td><h5> {{ Sec_PL }} </h5></td>
+    </tr>
+    <tr>
+      <td><h5> Total </h5></td>
+      <td><h5> {{ Total_PL }} </h5></td>
+    </tr>
+    <tr>
+      <td><h5> Commissions </h5></td>
+      <td><h5> {{ commis }} </h5></td>
+      <td><h5> {{ Net_Perc }} </h5></td>
+    </tr>
+    <tr>
+      <td><h5> Net </h5></td>
+      <td><h5> {{ Net_PL }} </h5></td>
+    </tr>
+  </table>
+</div>
+
+<br>
+
+<div class="ipotable">
+  <h4>IPOs</h4>
+  {% render_table ipoTable %}
+</div>
+<br>
+<div class="sectable">
+  <h4>Secondaries/Overnights</h4>
+  {% render_table secTable %}
+</div>
+<br>
+<div class="tradetable">
+  <h4>Trades</h4>
+  {% render_table Trade_Table %}
+</div>
+<div class="preferredtable">
+  <h4>Preferreds</h4>
+  {% render_table Pref_Table %}
+</div>
+\
+<!--
+<script>
+  var $broker = $("#id_brok");
+
+  $(document).ready(function(){
+    var sales = $broker.val();
+
+    $.ajax({
+      url: '{% url "load_brokers" %}',
+      data: {
+        'sales': sales
+      },
+      dataType: 'json',
+      success: function (data)
+      {
+        $.each(JSON.parse(data) , function(key, value)
+          {
+            $broker.append('<option value=' + key + '>' + value + '</option>');
+          });
+      }
+    });
+  });
+</script>
+-->
+{% endblock %}

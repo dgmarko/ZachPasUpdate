@@ -1,0 +1,145 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    label.center {
+      margin-left: auto;
+      margin-right: auto;
+      width: 25em;
+      text-align: center;
+    }
+
+    input.center{
+      display: block;
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    button.center{
+      display: block;
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    button.match_center{
+      display: block;
+      margin-right: auto;
+      margin-left: auto;
+    }
+  </style>
+
+  <h4> Match Trades </h4>
+
+  <div>
+    <form method="post">
+      <div class="row">
+        <div class="col-lg-4">
+          {% csrf_token %}
+          <table>
+            {{ tradeForm.saleF }}
+          </table>
+        </div>
+      </div>
+
+      <br>
+
+      <div class="row">
+        <div class="col-lg-4">
+          <label class="center">Unmatched Purchases</label>
+
+          <!--<select multiple id="id_all_purchases"></select>-->
+          {{ tradeForm.all_purchases }}
+        </div>
+
+        <div class="col-lg-2">
+          <label class="center">Shares</label>
+          <input class="center" id="id_purch_shares" size="4" value = "0"></input>
+          <br>
+          <button class="match_center" id="id_match_trade" type="button">Match</button>
+        </div>
+
+        <div class="col-lg-4">
+          <label class="center">Matched Buys</label>
+          <!--<select multiple id='id_matched_trades'></select>-->
+          {{ tradeForm.matched_trades }}
+        </div>
+      </div>
+
+      <br>
+      <br>
+
+      <button class="center" type="submit" value="{{b.id}}" name="pullData">Match Trade</button>
+    </form>
+  </div>
+
+  <script>
+    var $purch = $("#id_all_purchases");
+    var $mat_tr = $("#id_match_trade");
+    var $matpurch = $("#id_matched_trades");
+    var $salefield = $("#id_saleF");
+
+    $(document).ready(function(){
+      var sales = $salefield.val();
+      $salefield.empty();
+
+      $.ajax({
+        url: '{% url "load_sales" %}',
+        data: {
+          'sales': sales
+        },
+        dataType: 'json',
+        success: function (data)
+        {
+          $.each(JSON.parse(data) , function(key, value)
+            {
+              $salefield.append('<option value=' + key + '>' + value + '</option>');
+            });
+        }
+      });
+    });
+
+    $( "button.match_center" ).on( 'click', function(){
+      //alert($("#id_purch_shares").val());
+
+      var mTr = $purch.find(":selected").val() + "|" + $("#id_purch_shares").val()
+      var mText = $purch.find(":selected").text()
+
+      $matpurch.append('<option value=' + mTr + '>' + mText + '</option>');
+      $matpurch.val(mTr).prop('selected', true)
+
+      return false;
+    });
+
+    $purch.on( 'change', function(){
+      var trMat = $purch.find(":selected").text().split(" ");
+      $("#id_purch_shares").val(trMat[1]);
+    })
+
+    $('#id_saleF').on('change', function() {
+      var sale= $(this).val();
+      $purch.empty();
+
+      $.ajax({
+        url: '{% url "load_buys" %}',
+        data: {
+          'purchases': sale
+        },
+        dataType: 'json',
+        success: function (data)
+        {
+          $.each(JSON.parse(data) , function(key, value)
+            {
+              $purch.append('<option value=' + key + '>' + value + '</option>');
+            });
+        }
+      });
+    });
+
+  </script>
+</html>
+{% endblock %}

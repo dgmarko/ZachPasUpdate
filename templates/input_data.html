@@ -1,0 +1,138 @@
+{% extends "base_generic.html" %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+  <!-- Add icon library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+  .inputfile + label {
+      font-size: 1em;
+      font-weight: 700;
+      color: white;
+      background-color: #79258e;
+      display: inline-block;
+      cursor: pointer; /* "hand" cursor */
+      outline: 1px dotted #000;
+	    outline: -webkit-focus-ring-color auto 5px;
+  }
+
+  .button {
+      font-size: 1em;
+      font-weight: 700;
+      color: white;
+      background-color: #79258e;
+      display: inline-block;
+      cursor: pointer; /* "hand" cursor */
+      outline: 1px dotted #000;
+	    outline: -webkit-focus-ring-color auto 5px;
+  }
+
+  .inputfile:focus + label,
+  .inputfile + label:hover {
+      background-color: #ddd;
+      color: purple;
+    }
+
+  .inputfile {
+  	width: 0.1px;
+  	height: 0.1px;
+  	opacity: 0;
+  	overflow: hidden;
+  	position: absolute;
+  	z-index: -1;
+  }
+
+  section {
+    font-size: 1em;
+    font-weight: 700;
+    display: inline-block;
+    padding: 50px;
+    vertical-align: text-top;
+  }
+
+  .left {
+    float: left;
+  }
+
+  .right {
+    float: right;
+  }
+
+  label.center {
+    margin-left: auto;
+    margin-right: auto;
+    width: 25em;
+    text-align: center;
+  }
+</style>
+
+<h4>Data Input Page</h4>
+
+  <p></p>
+
+  <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+    <input type="file" name="datafile" id="file" class="inputfile" data-multiple-caption="{count} files selected" multiple />
+    <label for="file" id="file_label">Choose a Trade File</label> <!--class = icon-->
+    <br>
+    <button class="button" type="submit" value="{{b.id}}" name="trade_file">Load File</button>
+  </form>
+
+  <div>
+    <section style="left">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <table>
+          {{ brokForm.as_table }}
+        </table>
+        <button class="button" type="submit" value="{{b.id}}" name="brokUpdate">Add Broker</button>
+      </form>
+      <label class='center'>Broker Mapping</label>
+    </section>
+
+    <section style="right">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <table>
+          {{ headForm.as_table }}
+        </table>
+        <button class="button" type="submit" value="{{b.id}}" name="headUpdate">Add Header</button>
+      </form>
+      <br>
+      <label class='center'>Header Mapping</label>
+      {% render_table HeadTable %}
+    </section>
+  </div>
+
+  <br>
+
+  <div>
+    <section style="left">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <table>
+          {{ tickForm.as_table }}
+        </table>
+        <button class="button" type="submit" value="{{b.id}}" name="tickUpdate">Add Ticker</button>
+      </form>
+      <br>
+      <label class='center'>Ticker Mapping</label>
+      {% render_table TickTable %}
+    </section>
+  </div>
+
+  <div id="WaitDialog"   class="hidden" style="text-align: center">
+      <img  src="static/loading_black.gif" />
+      <div style="margin-top: 10px; color: white">
+          <b>Please wait</b>
+      </div>
+  </div>
+
+  <script>
+    $("#file").on( 'change', function(){
+      $("#file_label").text($(this).val());
+    });
+  </script>
+
+
+{% endblock %}

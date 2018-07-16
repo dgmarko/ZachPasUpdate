@@ -1,0 +1,107 @@
+{% extends "base_generic.html" %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% block content %}
+
+<style>
+.button {
+    font-size: 1em;
+    font-weight: 700;
+    color: white;
+    background-color: #79258e;
+    display: inline-block;
+    cursor: pointer; /* "hand" cursor */
+    outline: 1px dotted #000;
+    outline: -webkit-focus-ring-color auto 5px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20em;
+    text-align: center;
+}
+
+.left {
+
+  border:1px solid black;
+}
+
+div.pltable {
+    float: left;
+    width:250px;
+    margin: auto;
+    border: 3px solid black;
+}
+
+div.ipotable{
+  clear:both;
+  float: left;
+  width:1000px;
+  padding: 5px;
+  margin: auto;
+  border: 3px solid black;
+}
+
+div.sectable{
+  clear:both;
+  float: left;
+  width:1000px;
+  padding: 5px;
+  margin: auto;
+  border: 3px solid black;
+}
+
+div.tradetable{
+  clear:both;
+  float: left;
+  width:1000px;
+  padding: 5px;
+  margin: auto;
+  border: 3px solid black;
+}
+
+th, td {
+    padding: 5px;
+}
+</style>
+
+
+<h4>Reports</h4>
+
+<div>
+  <div class="row">
+    <div class="col-lg-4">
+      <form method="get">
+        {% csrf_token %}
+        <table>
+          {{ OutForm.as_table }}
+        </table>
+        <button class="button" type="submit" value="{{b.id}}" name="pullData">Generate Report</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!--
+<script>
+  var $broker = $("#id_brok");
+
+  $(document).ready(function(){
+    var sales = $broker.val();
+    $broker.empty();
+
+    $.ajax({
+      url: '{% url "load_brokers" %}',
+      data: {
+        'sales': sales
+      },
+      dataType: 'json',
+      success: function (data)
+      {
+        $.each(JSON.parse(data) , function(key, value)
+          {
+            $broker.append('<option value=' + key + '>' + value + '</option>');
+          });
+      }
+    });
+  });
+</script>
+-->
+{% endblock %}
