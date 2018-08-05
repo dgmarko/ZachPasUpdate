@@ -710,7 +710,6 @@ class OutputData(FormView):
 
     def get(self, request):
         oForm = OutputForm(data=request.GET)
-        print(request.GET)
         if 'brok' in request.GET:
             if oForm.is_valid():
                 out_broker = oForm.cleaned_data.get('brok')
@@ -740,6 +739,8 @@ class OutputData(FormView):
 
                 for i in out_trades:
                     if i['type'] == "Buy" and i['transtype'] == 'IPO' and i['matching'] is not None:
+                        matchedSalesIPO = []
+                        
                         if ';' not in i['matching']:
                             saleDetails = i['matching'].split("|")
                             sharesSold = saleDetails[5]
@@ -767,16 +768,23 @@ class OutputData(FormView):
 
                         avgPr = 0
                         sharesSold = 0
+
                         for k in matchedSalesIPO:
-                            avgPr += float(k[0].sellprice) * int(k[1])
+                            print(k, i)
                             sharesSold += int(k[1])
+                            if sharesSold > int(i['shareamount']):
+                                sharesSold = int(i['shareamount'])
+                            avgPr += float(k[0].sellprice) * sharesSold
+                            #sharesSold += int(k[1])
                             commiss += int(k[0].commiss)
                         if sharesSold != 0:
                             avgSlPr = avgPr / sharesSold
                         else:
                             avgSlPr = 0
 
+                        print(IPOPL, avgSlPr)
                         IPOPL += (float(avgSlPr) - float(i['buyprice'])) * float(i['matching_amount'])
+                        print(IPOPL)
 
 
                 ipo_table = populate_output_table(Transaction.objects.filter(broker=out_broker).filter(tradedate__gte=out_sd).filter(tradedate__lte=out_ed)
