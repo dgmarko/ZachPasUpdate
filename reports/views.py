@@ -163,6 +163,8 @@ def conv_input(import_data):
 
                         print(dat[0], dat[2], shrs)
                         outList.append(dat[0] + '|' + dat[1] + '|' + str(dat[2]).replace(' ', '.') + '|' + str(dat[3]).replace(' ','_') + '|' + str(shrs))
+                    elif j  == 'leadbroker':
+                        outList.append(dat[12])
                     else:
                         outList.append(None)
 
@@ -335,6 +337,41 @@ def AutoMatchTrades(newTrades):
                         buyTrade.save()
                         j.save()
 
+def AutoMatchLots(newTrades):
+    for i in newTrades:
+        if i.type == 'Buy' and i.matching_amount != i.shareamount:
+            buyTrade = i
+            for j in newTrades:
+                if j.type == 'Sell' and j.symbol == buyTrade.symbol and  buyTrade.leadbroker is not None and j.leadbroker is not None:
+                    if buyTrade.matching_amount is None:
+                        matSh  = 0
+                    else:
+                        matSh = int(buyTrade.matching_amount)
+                    if buyTrade.leadbroker == j.leadbroker and int(j.shareamount) <= (int(buyTrade.shareamount) - matSh):
+                        if buyTrade.matching is None:
+                            buyTrade.matching = j.prim_key + "|" + str(buyTrade.shareamount)
+                            buyTrade.matching_amount = buyTrade.shareamount
+                            if buyTrade.shareamount == j.shareamount:
+                                j.matching = 'Matching'
+                                j.matching_amount = buyTrade.shareamount
+                            else:
+                                if j.matching_amount is not None:
+                                    j.matching_amount += buyTrade.shareamount
+                                    if j.matching_amount == j.shareamount:
+                                        j.matching = 'Matching'
+                                else:
+                                    j.matching_amount = buyTrade.shareamount
+                        else:
+                            buyTrade.matching = buyTrade.matching + ";" +  j.prim_key + "|" + str(buyTrade.shareamount)
+                            buyTrade.matching_amount += buyTrade.shareamount
+                            j.matching_amount += buyTrade.shareamount
+                            if j.matching_amount == j.shareamount:
+                                j.matching = 'Matching'
+
+                    buyTrade.save()
+                    j.save()
+
+
 @login_required
 def input_data(request):
     """
@@ -401,6 +438,7 @@ def input_data(request):
                 i.save()
 
             AutoMatchTrades(recordList)
+            AutoMatchLots(recordList)
         elif 'tickUpdate' in postdict:
             tick = Ticker()
             tick.inp_ticker = postdict['inpTick']
@@ -740,7 +778,7 @@ class OutputData(FormView):
                 for i in out_trades:
                     if i['type'] == "Buy" and i['transtype'] == 'IPO' and i['matching'] is not None:
                         matchedSalesIPO = []
-                        
+
                         if ';' not in i['matching']:
                             saleDetails = i['matching'].split("|")
                             sharesSold = saleDetails[5]
