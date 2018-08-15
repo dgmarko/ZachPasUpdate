@@ -347,24 +347,25 @@ def AutoMatchLots(newTrades):
                         matSh  = 0
                     else:
                         matSh = int(buyTrade.matching_amount)
+
                     if buyTrade.leadbroker == j.leadbroker and int(j.shareamount) <= (int(buyTrade.shareamount) - matSh):
                         if buyTrade.matching is None:
                             buyTrade.matching = j.prim_key + "|" + str(buyTrade.shareamount)
-                            buyTrade.matching_amount = buyTrade.shareamount
+                            buyTrade.matching_amount = min(buyTrade.shareamount, j.shareamount)
                             if buyTrade.shareamount == j.shareamount:
                                 j.matching = 'Matching'
                                 j.matching_amount = buyTrade.shareamount
                             else:
                                 if j.matching_amount is not None:
-                                    j.matching_amount += buyTrade.shareamount
+                                    j.matching_amount += min(buyTrade.shareamount, j.shareamount)
                                     if j.matching_amount == j.shareamount:
                                         j.matching = 'Matching'
                                 else:
-                                    j.matching_amount = buyTrade.shareamount
+                                    j.matching_amount = min(buyTrade.shareamount, j.shareamount)
                         else:
                             buyTrade.matching = buyTrade.matching + ";" +  j.prim_key + "|" + str(buyTrade.shareamount)
-                            buyTrade.matching_amount += buyTrade.shareamount
-                            j.matching_amount += buyTrade.shareamount
+                            buyTrade.matching_amount += min(buyTrade.shareamount, j.shareamount)
+                            j.matching_amount += min(buyTrade.shareamount, j.shareamount)
                             if j.matching_amount == j.shareamount:
                                 j.matching = 'Matching'
 
