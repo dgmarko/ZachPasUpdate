@@ -8,7 +8,7 @@ class Transaction(models.Model):
     symbol = models.CharField(max_length=100, null=True, blank=True)
     tradedate = models.DateField(null=True, blank=True)
     broker = models.CharField(max_length=150, null=True, blank=True)
-    shareamount = models.IntegerField(null=True, blank=True)
+    shareamount = models.BigIntegerField(null=True, blank=True)
     buyprice = models.FloatField(null=True, blank=True)
     sellprice = models.FloatField(null=True, blank=True)
     commiss = models.FloatField(null=True, blank=True)
@@ -27,7 +27,7 @@ class Transaction(models.Model):
     spopen = models.FloatField(null=True, blank=True)
     spclose = models.FloatField(null=True, blank=True)
     matching = models.CharField(max_length=1000, null=True, blank=True)
-    matching_amount = models.IntegerField(null=True, blank=True)
+    matching_amount = models.BigIntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.prim_key
