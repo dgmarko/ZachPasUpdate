@@ -161,7 +161,7 @@ def conv_input(import_data):
                         else:
                             shrs = 0
 
-                        print(dat[0], dat[2], shrs)
+                        #print(dat[0], dat[2], shrs)
                         outList.append(dat[0] + '|' + dat[1] + '|' + str(dat[2]).replace(' ', '.') + '|' + str(dat[3]).replace(' ','_') + '|' + str(shrs))
                     elif j  == 'leadbroker':
                         outList.append(dat[12])
@@ -203,7 +203,7 @@ class TradeMatchView(CreateView):
         trL = []
 
         for i in buys:
-            print(i)
+            #print(i)
             matchK = ""
             trL = i.split("|")
             for j in range(0, 5):
@@ -220,11 +220,11 @@ class TradeMatchView(CreateView):
                         j.matching += ";" + passVal['saleF'] + "|" + str(shares)
                         j.matching_amount += int(shares)
                 else:
-                    print(passVal['saleF'])
+                    #print(passVal['saleF'])
                     j.matching = passVal['saleF'] + "|" + str(shares)
                     j.matching_amount = int(shares)
 
-                print(j.matching, j.matching_amount)
+                #print(j.matching, j.matching_amount)
                 j.save()
 
                 sharesmatched += int(shares)
@@ -292,7 +292,7 @@ def load_sales(request):
                 dSales[i['prim_key']] = [str(i['symbol']) + " " + str(int(i['shareamount']) - matchedSh) + " Shares Sold " + str(i['tradedate'])]
 
     data = json.dumps(dSales)
-    print(data)
+    #print(data)
 
     return JsonResponse(data, safe=False)
 
@@ -304,7 +304,7 @@ def load_brokers(request):
             dBrokers[i['broker']] = [str(i['broker'])]
 
     data = json.dumps(dBrokers)
-    print(data)
+    #print(data)
 
     return JsonResponse(data, safe=False)
 
@@ -330,9 +330,9 @@ def AutoMatchTrades(newTrades):
                 if j != buyTrade and j.type == 'Sell':
                     if buyTrade.tradedate == j.tradedate and buyTrade.symbol == j.symbol and buyTrade.shareamount == j.shareamount:
                         buyTrade.matching = j.prim_key + "|" + str(buyTrade.shareamount)
-                        buyTrade.matching_amount = buyTrade.shareamount
+                        buyTrade.matching_amount = int(buyTrade.shareamount)
                         j.matching = 'Matching'
-                        j.matching_amount = buyTrade.shareamount
+                        j.matching_amount = int(buyTrade.shareamount)
 
                         buyTrade.save()
                         j.save()
@@ -351,24 +351,24 @@ def AutoMatchLots(newTrades):
                     if buyTrade.leadbroker == j.leadbroker and int(j.shareamount) <= (int(buyTrade.shareamount) - matSh):
                         if buyTrade.matching is None:
                             buyTrade.matching = j.prim_key + "|" + str(buyTrade.shareamount)
-                            buyTrade.matching_amount = min(buyTrade.shareamount, j.shareamount)
+                            buyTrade.matching_amount = int(min(buyTrade.shareamount, j.shareamount))
                             if buyTrade.shareamount == j.shareamount:
                                 j.matching = 'Matching'
-                                j.matching_amount = buyTrade.shareamount
+                                j.matching_amount = int(buyTrade.shareamount)
                             else:
                                 if j.matching_amount is not None:
-                                    j.matching_amount += min(buyTrade.shareamount, j.shareamount)
+                                    j.matching_amount += int(min(buyTrade.shareamount, j.shareamount))
                                     if j.matching_amount == j.shareamount:
                                         j.matching = 'Matching'
                                 else:
-                                    j.matching_amount = min(buyTrade.shareamount, j.shareamount)
+                                    j.matching_amount = int(min(buyTrade.shareamount, j.shareamount))
                         else:
                             buyTrade.matching = buyTrade.matching + ";" +  j.prim_key + "|" + str(buyTrade.shareamount)
-                            buyTrade.matching_amount += min(buyTrade.shareamount, j.shareamount)
+                            buyTrade.matching_amount += int(min(buyTrade.shareamount, j.shareamount))
                             if j.matching_amount is not None:
-                                j.matching_amount += min(buyTrade.shareamount, j.shareamount)
+                                j.matching_amount += int(min(buyTrade.shareamount, j.shareamount))
                             else:
-                                j.matching_amount = min(buyTrade.shareamount, j.shareamount)
+                                j.matching_amount = int(min(buyTrade.shareamount, j.shareamount))
                             if j.matching_amount == j.shareamount:
                                 j.matching = 'Matching'
 
@@ -394,7 +394,7 @@ def input_data(request):
     if request.method == 'POST':
         postdict = request.POST.dict()
 
-        print(postdict)
+        #print(postdict)
 
         if 'trade_file' in postdict:
             dataset = Dataset()
@@ -453,7 +453,7 @@ def input_data(request):
             ticks = Ticker.objects.all()
             for i in ticks:
                 if i.inp_ticker not in tDict:
-                    print(i.inp_ticker)
+                    #print(i.inp_ticker)
                     tDict[i.inp_ticker] = i.standard_ticker
 
             trans = Transaction.objects.all()
@@ -484,6 +484,7 @@ class SumBuyColumn(tables.Column):
 
     def render(self, record):
         self.column_total += float(record['buy_total'].replace("$", "").replace(",",""))
+        #self.column_total += float(record['buy_total'])
         return record['buy_total']
 
     def render_footer(self, bound_column, table):
@@ -494,6 +495,7 @@ class SumSellColumn(tables.Column):
 
     def render(self, record):
         self.column_total += float(record['sell_total'].replace("$", "").replace(",",""))
+        #self.column_total += float(record['sell_total'])
         return record['sell_total']
 
     def render_footer(self, bound_column, table):
@@ -504,6 +506,7 @@ class SumGLColumn(tables.Column):
 
     def render(self, record):
         self.column_total += float(record['gain_loss'].replace("$", "").replace(",",""))
+        #self.column_total += float(record['gain_loss'])
         return record['gain_loss']
 
     def render_footer(self, bound_column, table):
@@ -513,7 +516,8 @@ class SumCommissColumn(tables.Column):
     column_total = 0
 
     def render(self, record):
-        self.column_total += float(record['commiss'].replace("$", "").replace(",",""))
+        #self.column_total += float(record['commiss'].replace("$", "").replace(",",""))
+        self.column_total += float(record['commiss'])
         return record['commiss']
 
     def render_footer(self, bound_column, table):
@@ -524,6 +528,7 @@ class SumBuyCommissColumn(tables.Column):
 
     def render(self, record):
         self.column_total += float(record['buy_commiss'].replace("$", "").replace(",",""))
+        #self.column_total += float(record['buy_commiss'])
         return record['buy_commiss']
 
     def render_footer(self, bound_column, table):
@@ -561,7 +566,7 @@ def populate_output_table(purch_data, typ):
                     else:
                         primK += saleDetails[k]
                 sale_Trans = Transaction.objects.get(prim_key=primK)
-                print(sale_Trans.prim_key)
+                #print(sale_Trans.prim_key)
                 matchedSales.append((sale_Trans, sharesSold))
             else:
                 for l in i['matching'].split(";"):
@@ -580,14 +585,21 @@ def populate_output_table(purch_data, typ):
             avgSalePr = 0
             shareTot = 0
             saleTot = 0
+            matShare = 0
 
             for k in matchedSales:
                 matSale = k[0]
-                matShare = int(k[1])
+                matShare = int(k[0].shareamount)
+                print(float(matSale.sellprice), matShare)
                 avgSalePr += float(matSale.sellprice) * matShare
                 shareTot += matShare
-                print(matSale.symbol, matShare, float(matSale.sellprice))
-                saleTot += matShare * float(matSale.sellprice)
+                #print(matSale.symbol, matShare, float(matSale.sellprice))
+
+            if shareTot != 0:
+                print(shareTot, i['shareamount'], float(matSale.sellprice), avgSalePr / shareTot)
+                saleTot = min(shareTot, i['shareamount']) * (avgSalePr / shareTot)
+            else:
+                saleTot = 0
 
 
             for j in datHeads:
@@ -812,7 +824,7 @@ class OutputData(FormView):
                         sharesSold = 0
 
                         for k in matchedSalesIPO:
-                            print(k, i)
+                            #print(k, i)
                             sharesSold += int(k[1])
                             if sharesSold > int(i['shareamount']):
                                 sharesSold = int(i['shareamount'])
@@ -824,9 +836,9 @@ class OutputData(FormView):
                         else:
                             avgSlPr = 0
 
-                        print(IPOPL, avgSlPr)
+                        #print(IPOPL, avgSlPr, float(i['buyprice']), float(i['matching_amount']))
                         IPOPL += (float(avgSlPr) - float(i['buyprice'])) * float(i['matching_amount'])
-                        print(IPOPL)
+                        #print(IPOPL)
 
 
                 ipo_table = populate_output_table(Transaction.objects.filter(broker=out_broker).filter(tradedate__gte=out_sd).filter(tradedate__lte=out_ed)
@@ -838,6 +850,8 @@ class OutputData(FormView):
 
                 for i in out_trades:
                     if i['type'] == "Buy" and (i['transtype'] == '2nd' or i['transtype'] == 'O/N') and i['matching'] is not None:
+                        matchedSalesSec = []
+
                         if ';' not in i['matching']:
                             saleDetails = i['matching'].split("|")
                             sharesSold = saleDetails[5]

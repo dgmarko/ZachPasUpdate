@@ -66,7 +66,6 @@ class TradeMatchForm(forms.ModelForm):
     SALES = ()
 
     for i in sales:
-        print(i)
         sale = (i.prim_key, str(i.symbol) + " " + str(i.shareamount) + " Shares Sold " + str(i.tradedate))
         if sale not in SALES:
             SALES += (sale),
