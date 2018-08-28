@@ -6,8 +6,10 @@ from django.views.generic.edit import FormView
 from django.views.generic import ListView, CreateView, UpdateView
 from django.urls import reverse_lazy
 import json
-from datetime import datetime
+import csv
+from datetime import datetime, timedelta
 from tablib import Dataset
+from django.http import HttpResponse
 from .models import Transaction, Header, Ticker
 from .forms import TickerForm, HeaderForm, BrokerForm, OutputForm, TradeMatchForm, SummaryForm
 from django.db import transaction, DatabaseError
@@ -248,6 +250,19 @@ class TradeMatchView(CreateView):
         form = TradeMatchForm
 
         return render(request, 'trade_match.html', {'tradeForm': TradeMatchForm})
+
+def export_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="database.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Type', 'Transaction Type', 'Symbol', 'Trade Date', 'Broker', 'Share Amount', 'Buy Price', 'Sell Price', 'Commission'])
+
+    transactions = Transaction.objects.all().values_list('type', 'transtype', 'symbol', 'tradedate', 'broker', 'shareamount', 'buyprice', 'sellprice', 'commiss')
+    for trans in transactions:
+        writer.writerow(trans)
+
+    return response
 
 def load_purchases(request):
     sale_trade = request.GET.get('saleF')
@@ -1014,6 +1029,8 @@ class SummaryView(FormView):
                     secPL = 0
                     commiss = 0
                     pfdCommiss = 0
+                    matchedSales2nd = []
+                    matchedSalesIPO = []
 
                     for j in all_trades:
                         if j['shareamount'] != 0:
@@ -1022,37 +1039,102 @@ class SummaryView(FormView):
                                     commiss += j['commiss']
                                 else:
                                     pfdCommiss += j['commiss']
+                                #IPO P&L
                                 if j['transtype'] == 'IPO' and j['matching'] is not None:
+                                    matchedSalesIPO = []
                                     if ';' not in j['matching']:
                                         matchK = ""
                                         trL = j['matching'].split("|")
+                                        sharesSold = trL[5]
                                         for k in range(0, 5):
                                             if k < 4:
                                                 matchK += trL[k] + "|"
                                             else:
                                                 matchK += trL[k]
-                                        saleDets = Transaction.objects.get(prim_key=matchK)
+                                        matched_sell = Transaction.objects.get(prim_key=matchK)
+
+                                        matchedSalesIPO.append((matched_sell, sharesSold))
                                     #code for many matching sales
-                                    IPOPL += (saleDets.sellprice - j['buyprice']) * j['matching_amount']
-                                    commiss += saleDets.commiss
+                                    else:
+                                        for l in j['matching'].split(";"):
+                                            matchK = ""
+                                            trL = l.split("|")
+                                            for k in range(0, 5):
+                                                if k < 4:
+                                                    matchK += trL[k] + "|"
+                                                else:
+                                                    matchK += trL[k]
+
+                                            matched_sell = Transaction.objects.get(prim_key=matchK)
+                                            sharesSold = matched_sell.shareamount
+                                            matchedSalesIPO.append((matched_sell, sharesSold))
+
+                                    avgPr = 0
+                                    sharesSold = 0
+                                    avgSlPr = 0
+
+                                    for k in matchedSalesIPO:
+                                        avgPr += float(k[0].sellprice) * int(k[1])
+                                        sharesSold += int(k[1])
+                                        commiss += int(k[0].commiss)
+                                    if sharesSold != 0:
+                                        avgSlPr = avgPr / sharesSold
+                                    else:
+                                        avgSlPr = 0
+
+                                    IPOPL += ((float(avgSlPr) - float(j['buyprice'])) * float(j['matching_amount']))
+
                                 elif (j['transtype'] == '2nd' or j['transtype'] == 'ON') and j['matching'] is not None:
+                                    matchedSales2nd = []
+
                                     if ';' not in j['matching']:
                                         matchK = ""
                                         trL = j['matching'].split("|")
+                                        sharesSold = trL[5]
                                         for k in range(0, 5):
                                             if k < 4:
                                                 matchK += trL[k] + "|"
                                             else:
                                                 matchK += trL[k]
-                                        saleDets = Transaction.objects.get(prim_key=matchK)
+                                        matched_sell = Transaction.objects.get(prim_key=matchK)
+
+                                        matchedSales2nd.append((matched_sell, sharesSold))
                                     #code for many matching sales
-                                    secPL += (saleDets.sellprice - j['buyprice']) * j['matching_amount']
-                                    commiss += saleDets.commiss
+                                    else:
+                                        for l in j['matching'].split(";"):
+                                            matchK = ""
+                                            trL = l.split("|")
+                                            for k in range(0, 5):
+                                                if k < 4:
+                                                    matchK += trL[k] + "|"
+                                                else:
+                                                    matchK += trL[k]
+
+                                            matched_sell = Transaction.objects.get(prim_key=matchK)
+                                            sharesSold = matched_sell.shareamount
+                                            matchedSales2nd.append((matched_sell, sharesSold))
+
+                                    avgPr = 0
+                                    sharesSold = 0
+                                    avgSlPr = 0
+
+                                    for k in matchedSales2nd:
+                                        avgPr += float(k[0].sellprice) * int(k[1])
+                                        sharesSold += int(k[1])
+                                        commiss += int(k[0].commiss)
+                                    if sharesSold != 0:
+                                        avgSlPr = avgPr / sharesSold
+                                    else:
+                                        avgSlPr = 0
+
+                                    if i == 'Leerink':
+                                        print(float(avgSlPr), float(j['buyprice']), float(j['matching_amount']))
+                                    secPL += ((float(avgSlPr) - float(j['buyprice'])) * float(j['matching_amount']))
+
                     totPL = IPOPL + secPL
                     netPL = totPL - commiss
                     summList.append((i, IPOPL, secPL, totPL, commiss, netPL, pfdCommiss))
 
-                print(summList)
                 Summary_Table = populate_summary_table(summList)
                 return render(request, 'summary.html', context ={'SummaryTable':Summary_Table, 'Summary_Form':sumForm})
             else:
