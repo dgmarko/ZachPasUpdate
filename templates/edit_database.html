@@ -1,0 +1,168 @@
+{% extends "base_generic.html" %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+
+<h4>Edit Databse</h4>
+
+<font size="1">
+  <form method="get">
+    {% csrf_token %}
+    <table>
+      {{ Edit_Form.as_table }}
+    </table>
+  </form>
+
+  <button class="button" value="{{b.id}}" name="edit_DB" id="id_edit_button">Amend Transaction</button>
+  <button class="button" value="{{b.id}}" name="delete_entry_DB" id="id_delete_button">Delete Transaction</button>
+
+  {% render_table EditDataTable %}
+
+  <font color="white"><h6 id="prim_key">Epes</h6></font>
+</font>
+
+<script>
+  var $type = $("#id_type");
+  var $trans_type = $("#id_trans_type");
+  var $ticker = $("#id_ticker");
+  var $trade_date = $("#id_trade_date");
+  var $broker = $("#id_broker");
+  var $shares = $("#id_shares");
+  var $buy_price = $("#id_buy_price");
+  var $sell_price = $("#id_sell_price");
+  var $commiss = $("#id_commiss");
+  var $prim_k = $("#prim_key")
+
+  $("table").on('click','tr',function() {
+    var i;
+    var primkey = "";
+    for (i = 1; i <= 6; i++){
+      if (i != 5){
+        if (i != 6) {
+          primkey = primkey + $(this).find("td:nth-child(" + i + ")").text() + "|";
+        }
+        else {
+          primkey = primkey + $(this).find("td:nth-child(" + i + ")").text()
+        }
+      }
+    }
+
+    if (primkey.trim() != "||||"){
+      $prim_k.text(primkey);
+    }
+
+    var id = $(this).find("td:first-child").text();
+    if (id.trim() != ""){
+      $type.val(id)
+    }
+
+    var id2 = $(this).find("td:nth-child(2)").text();
+    if (id2.trim() != ""){
+      $trans_type.val(id2)
+    }
+
+    var id = $(this).find("td:nth-child(3)").text();
+    if (id.trim() != ""){
+      $ticker.val(id)
+    }
+
+    var id = $(this).find("td:nth-child(4)").text();
+    if (id.trim() != ""){
+      $trade_date.val(id)
+    }
+
+    var id = $(this).find("td:nth-child(5)").text();
+    if (id.trim() != ""){
+      $broker.val(id)
+    }
+
+    var id = $(this).find("td:nth-child(6)").text();
+    if (id.trim() != ""){
+      $shares.val(id)
+    }
+
+    var id = $(this).find("td:nth-child(7)").text();
+    var curr = Number(id.replace(/[^0-9.-]+/g,""));
+    if (id.trim() != ""){
+      $buy_price.val(curr)
+    }
+
+    var id = $(this).find("td:nth-child(8)").text();
+    var curr = Number(id.replace(/[^0-9.-]+/g,""));
+    if (id.trim() != ""){
+      $sell_price.val(curr)
+    }
+
+    var id = $(this).find("td:nth-child(9)").text();
+    var curr = Number(id.replace(/[^0-9.-]+/g,""));
+    if (id.trim() != ""){
+      $commiss.val(curr)
+    }
+  });
+
+  $("#id_edit_button").on('click',function() {
+    var pk= $prim_k.text();
+
+    if (pk != '||||'){
+      $.ajax({
+        url: '{% url "edit_database" %}',
+        data: {
+          'prim_key': pk,
+          'type' : $type.val(),
+          'trans_type' : $trans_type.val(),
+          'ticker' : $ticker.val(),
+          'trade_date' : $trade_date.val(),
+          'broker' : $broker.val(),
+          'shares' : $shares.val(),
+          'buy_price' : $buy_price.val(),
+          'sell_price' : $sell_price.val(),
+          'commiss' : $commiss.val()
+        },
+        beforeSend:function(){
+             return confirm("Are you sure you'd like to edit this trade?");
+        },
+        dataType: 'json',
+        success: function (data)
+        {
+          $ticker.empty();
+          $trade_date.empty();
+          location.reload();
+        }
+      });
+    }
+  });
+
+  $("#id_delete_button").on('click',function() {
+    var pk= $prim_k.text();
+
+    if (pk != '||||'){
+      $.ajax({
+        url: '{% url "del_entry" %}',
+        data: {
+          'prim_key': pk,
+          'type' : $type.val(),
+          'trans_type' : $trans_type.val(),
+          'ticker' : $ticker.val(),
+          'trade_date' : $trade_date.val(),
+          'broker' : $broker.val(),
+          'shares' : $shares.val(),
+          'buy_price' : $buy_price.val(),
+          'sell_price' : $sell_price.val(),
+          'commiss' : $commiss.val()
+        },
+        beforeSend:function(){
+             return confirm("Are you sure you'd like to delete this trade?");
+        },
+        dataType: 'json',
+        success: function (data)
+        {
+          $ticker.empty();
+          $trade_date.empty();
+          location.reload();
+        }
+      });
+    }
+  });
+</script>
+
+{% endblock %}

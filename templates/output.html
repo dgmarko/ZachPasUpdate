@@ -26,9 +26,24 @@
 
 div.pltable {
     float: left;
-    width:250px;
+    width:300px;
     margin: auto;
     border: 3px solid black;
+}
+
+div.tradepltable {
+    float: left;
+    width:300px;
+    margin: auto;
+    border: 3px solid black;
+}
+
+div.space{
+  clear:both;
+  float: left;
+  width:1000px;
+  padding: 5px;
+  margin: auto;
 }
 
 div.ipotable{
@@ -58,6 +73,15 @@ div.tradetable{
   border: 3px solid black;
 }
 
+div.commisstable{
+  clear:both;
+  float: left;
+  width:1000px;
+  padding: 5px;
+  margin: auto;
+  border: 3px solid black;
+}
+
 div.preferredtable{
   clear:both;
   float: left;
@@ -73,7 +97,7 @@ th, td {
 </style>
 
 <h4>Reports</h4>
-
+<font size="1">
 <div>
   <div class="row">
     <div class="col-lg-4">
@@ -97,7 +121,7 @@ th, td {
 <div class="pltable">
   <table>
     <tr>
-      <th><h4> P&L </h4></th>
+      <th><h4> P&L -Deals </h4></th>
       <th>  <th>
     </tr>
     <tr>
@@ -124,27 +148,71 @@ th, td {
   </table>
 </div>
 
-<br>
+<div class="space">
+
+</div>
+
+<div class="tradepltable">
+  <table>
+    <tr>
+      <th><h4> P&L - Trades </h4></th>
+      <th>  <th>
+    </tr>
+
+    <tr>
+      <td><h5> Trades Net </h5></td>
+      <td><h5> {{ Trade_PL }} </h5></td>
+    </tr>
+
+    <tr>
+      <td><h5> Total Net </h5></td>
+      <td><h5> {{ Total_Net }} </h5></td>
+    </tr>
+  </table>
+</div>
+
+<div class="space">
+
+</div>
 
 <div class="ipotable">
   <h4>IPOs</h4>
   {% render_table ipoTable %}
 </div>
-<br>
+
+<div class="space">
+</div>
+
 <div class="sectable">
   <h4>Secondaries/Overnights</h4>
   {% render_table secTable %}
 </div>
-<br>
+
+<div class="space">
+</div>
+
 <div class="tradetable">
   <h4>Trades</h4>
   {% render_table Trade_Table %}
 </div>
+
+<div class="space">
+</div>
+
+<div class="commisstable">
+  <h4>Commissions</h4>
+  <!--{% render_table Trade_Table %}-->
+</div>
+
+<div class="space">
+</div>
+
 <div class="preferredtable">
   <h4>Preferreds</h4>
   {% render_table Pref_Table %}
 </div>
-\
+
+</font>
 <!--
 <script>
   var $broker = $("#id_brok");
