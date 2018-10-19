@@ -56,6 +56,23 @@ class SummaryForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(SummaryForm, self).__init__(*args, **kwargs)
 
+class EditDBForm(forms.Form):
+
+
+    type = forms.ChoiceField(label='Transaction Type', choices=(('Buy','Buy'), ('Sell', 'Sell')), required = False)
+    trans_type = forms.ChoiceField(label='Type', choices=(('IPO','IPO'), ('2nd', '2nd'), ('Trade', 'Trade'),
+    ('Cmsh', 'Cmsh'), ('PFD', 'PFD')), required = False)
+    ticker = forms.CharField(label='Ticker', required = False)
+    trade_date = forms.DateField(label = 'Trade Date', widget=forms.DateInput, required = False)
+    broker = forms.CharField(label='Broker', required = False)
+    shares = forms.IntegerField(label='Shares', required = False)
+    buy_price = forms.FloatField(label='Buy Price', required = False)
+    sell_price = forms.FloatField(label='Sell Price', required = False)
+    commiss = forms.FloatField(label='Commission', required = False)
+
+    def __init__(self, *args, **kwargs):
+        super(EditDBForm, self).__init__(*args, **kwargs)
+
 
 class TradeMatchForm(forms.ModelForm):
     class Meta:

@@ -80,16 +80,26 @@ WSGI_APPLICATION = 'zachupdate.wsgi.application'
 
 
 DATABASES = {
-    'default': {
+    'default' : {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'spvvuiea',
-        'USER': 'spvvuiea',
-        'PASSWORD': 'JGt98QPwjVnVwxNv75ZeZj-bHpXxfIVJ',
-        'HOST': 'pellefant.db.elephantsql.com',
+        'NAME': 'itjqfjdn',
+        'USER': 'itjqfjdn',
+        'PASSWORD': '9yO2YA6eq1HCgMBXPOziLgogSc2ZndCC',
+        'HOST': 'stampy.db.elephantsql.com',
         'PORT': '5432',
     }
 }
 
+'''
+'old': {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': 'spvvuiea',
+    'USER': 'spvvuiea',
+    'PASSWORD': 'JGt98QPwjVnVwxNv75ZeZj-bHpXxfIVJ',
+    'HOST': 'pellefant.db.elephantsql.com',
+    'PORT': '5432',
+}
+'''
 
 
 AUTH_PASSWORD_VALIDATORS = [
